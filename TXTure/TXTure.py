@@ -272,3 +272,74 @@ def replaceAll(txtfile,dictFindReplace,backup=True,return_lines=False):
     if return_lines:
         return lines
 
+
+class meta():
+    '''metaprogramming utils'''
+    def functionize(file=Path(r'C:\Users\seanm\Desktop\temp')/"Untitled-1.py" ,iniCells=3,argCell=2,src='vscode'):
+        '''Functionizes a .ipynb Exported as executable script (.py)\n
+        iniCells: how many code cells before the function begins\n
+        argCell: which cell to pull args from'''
+        key = '# %%' if src=='vscode' else '# In['
+        tabb = ' '*4
+        def deJpy(lines):
+            '''cleans the jupyter out of Exported as executable scripts (.py)'''
+            p = [line for line in lines if not line.startswith(key)]
+            wspace = []
+            for i in range(len(p)):
+                if not p[i-1:i+1]==['','']:
+                    wspace += [ p[i] ]
+            return wspace
+        # p = file.read_text().split('\n')
+        lines = read(file)
+        lines[6:11]
+        
+        funkstart = findKey(lines,[key]*(iniCells+1))+1
+        ini,funk = lines[:funkstart],lines[funkstart:]
+        ini
+        
+        #del extra whitespace
+        funk = funk[findKey(funk,r'\w+',how='regex'):]
+        funk[:5]
+        
+        ini,funk = [deJpy(lnes) for lnes in (ini,funk)]
+        ini
+        
+        #TODO convention for this? Just big bold docstrings?
+        found = findKey(lines,'#  # ')
+        if found:
+            docstring = "'''" + lines[found].replace('#  # ','') + "'''"
+        else:
+            docstring = "''''''"
+        print(docstring)
+        
+        argstart = findKey(lines,[key]*(argCell-1))+1
+        lines[argstart:]
+        
+        argz = [i for i in ini if i.find('=')>-1]
+        argz
+        
+        argz = [a.split('=')[0] for a in argz]
+        argz
+        
+        splitit = lambda argz: [[a for a in arg.split(' ') if len(a)>0][0] for arg in argz]
+        assert splitit(['arg1 ', 'arg2','   arg3']) == ['arg1', 'arg2','arg3']
+        argz = splitit(argz)
+        argz
+        
+        funk = [f'{tabb}{line}' for line in funk]
+        funk[-5:]
+        
+        funknmer = lambda filestem: filestem.split('_')[-1].split(' ')[0]
+        assert funknmer('w_PC_funk (6)')=='funk'
+        assert funknmer('w_PC_funk')=='funk'
+        funknm = funknmer(file.stem)
+        funknm
+        
+        deff = f"def {funknm}({','.join(argz)}):"
+        deff
+        
+        res = ini+[deff]+[tabb+docstring]+funk+[f'{tabb}return ']
+        res
+        
+        file.write_text('\n'.join(res))
+        print(f'{file} has been functionized')
