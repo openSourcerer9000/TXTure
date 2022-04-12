@@ -1,9 +1,4 @@
-if __package__ is None or __package__ == '':
-    # uses current directory visibility
-    from atomic.funkshuns import *
-else:
-    # uses current package visibility
-    from .atomic.funkshuns import *
+from funkshuns import *
 
 def read(txtfile):
     '''speed read the whole geo (returns list of lines without \\n 's (newline chars))\n

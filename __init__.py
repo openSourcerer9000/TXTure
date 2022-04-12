@@ -7,7 +7,7 @@ __version__ = '0.1.0'
 #drill down to the goods no matter where you're importing from
 if __package__ is None or __package__ == '':
     # uses current directory visibility
-    from TXTure import *
+    from TXTure.TXTure import *
 else:
     # uses current package visibility
-    from .TXTure import *
+    from .TXTure.TXTure import *

@@ -1,5 +1,5 @@
 package:
-  name: "funkshuns"
+  name: "txture"
   version: "0.3.0"
 
 source:
@@ -11,19 +11,17 @@ requirements:
     - python
     - setuptools
   build:
-    - python
+    - python {{ python }}
   run:
     - python
-    - pandas
-    - requests
-    - cython
+    - funkshuns
 
 about:
-  home: https://github.com/openSourcerer9000/funkshuns
+  home: https://github.com/openSourcerer9000/TXTure
   license: MIT
   license_familY: MIT
   license_file: LICENSE
-  summary: "We got the funk, it's in this repo!"
+  summary: "Surgically edit machine-readable ASCII files"
 
 extra:
   recipe-maintainers:
