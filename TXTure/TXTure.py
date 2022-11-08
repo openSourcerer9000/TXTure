@@ -70,7 +70,6 @@ def getKeys(txtfile,keys,startFrom = 0,trim=2,how='startswith'):
     USE getKeys()[0] if it's just 1 key\n
     trim: {0:returns full line including key, 1:not including key,\n2:
     not including key + trim escape n and white space before and after each result,\n
-    1.5:not including key + trim escape n BUT NOT WHITESPACE- TODO untested, unused 111820}
     '''
     if isinstance(keys,str):
         keys = [keys]
@@ -78,12 +77,11 @@ def getKeys(txtfile,keys,startFrom = 0,trim=2,how='startswith'):
     lines = read(txtfile)
     res = [findKey(lines,key,how=how,startFrom=startFrom,retrn='line') for key in keys]
     if trim>0:
-        res = [st[len(key):] if st else None for st,key in zip(res,keys)]
+        res = [st.replace( asList(key)[-1] ,'',1 ) #right split on final key
+            if st else None for st,key in zip(res,keys)]
         # [i[len(key):] for st,key in zip(res,keys) if isinstance(st,str) else st]
-    if trim>1:
-        res = [st.replace('\n','') if st else None for st in res]
     if trim==2:
-        res = [st.rstrip() if st else None for st in res]
+        res = [st.replace('\n','').strip() if st else None for st in res]
     return res
 def getKeysAll(txtfile,keys,startfrom=0,trim=2):
     '''TODO getKeys will only get the first instance of each key, this returns all'''
@@ -194,21 +192,22 @@ def replaceLines(lines,addLines,key1,key2=1,how1 ='startswith',how2 ='startswith
     returns lines (TODO inplace?)
     '''
     lines,Lnum = removeLines(lines,key1,key2=key2,how1=how1,how2=how2,newLine=newLine) #TODO clean this up with args kwargs?
-    lines[Lnum:Lnum]=addLines
+    lines[Lnum:Lnum]=asList(addLines)
     return lines
 def write(txtfile,lines,addNewLines=True,backup=False):#,writefrom=0):
     '''overwrites/creates and writes the txtfile: PATH object of text file\n'''
     #writefrom: position to start overwriting from'''
     if backup:
         fileBackup(txtfile)
-    sep = '\n' if addNewLines else ''
+    #don't add newlines if lines is a string
+    sep = '\n' if addNewLines and not isinstance(lines,str) else ''
     txtfile.write_text(sep.join(lines))
 
     # with open(txtfile, 'r+') as fh:
     #     fh.truncate(writefrom)
     #     fh.seek(writefrom)
     #     fh.writelines(lines)
-def setKeys(txtfile,keyz,startFrom = 0,suff='\n',how='startswith',backup=False):
+def setKeys(txtfile,keyz,startFrom = 0,how='startswith',backup=False):
     '''keyz: {key1:'replacewith1',key2:...}\n
     the dict values can also be functions (or a mix of the two, {key1:'str',key2:myFunc}), \n
     in which case the OG key will be replaced with the output of func(OG key)\n
@@ -219,16 +218,15 @@ def setKeys(txtfile,keyz,startFrom = 0,suff='\n',how='startswith',backup=False):
     for key in list(keyz.keys()):
         if hasattr(keyz[key], '__call__'): #is func
             OGkey=getKeys(txtfile,[key],how=how,trim=1)[0]
-            OGkey = OGkey.rstrip(suff)
-            addLine = f'{key}{keyz[key](OGkey)}{suff}'
-        else:
-            addLine = f'{key}{keyz[key]}{suff}'
-        try:
-            lines,Lnum=removeLines(lines,key,key2=1,how1=how)
-        except:
-            print(f'WARNING: {txtfile} not written- setKeys operation failed')
-            return None
-        lines[Lnum:Lnum] = addLine
+            addLine = f'{key}{keyz[key](OGkey)}'
+        else: #key is a str or list, not a func
+            addLine = f'{asList(key)[-1]}{keyz[key]}'
+        # try:
+        lines,Lnum=removeLines(lines,key,key2=1,how1=how)
+        # except:
+        #     print(f'WARNING: {txtfile} not written- setKeys operation failed')
+        #     return None
+        lines[Lnum:Lnum] = [addLine]
 
     write(txtfile,lines,True,backup)
 def setSeq(txtfile,newSeq,key,how = 'startswith',key2=None,how2=None,startFrom = 0,backup=False,newLine=True):
@@ -267,7 +265,8 @@ def replaceAll(txtfile,dictFindReplace,backup=True,return_lines=False):
     if return_lines:
         return lines
 
-
+from copy import copy
+from os import mkdir
 class meta():
     '''metaprogramming utils'''
     def functionize(file=Path(r'C:\Users\seanm\Desktop\temp')/"Untitled-1.py" ,iniCells=3,argCell=2,src='vscode'):
@@ -338,3 +337,35 @@ class meta():
         
         file.write_text('\n'.join(res))
         print(f'{file} has been functionized')
+
+    def themeMe(themejson=Path(r'C:\Users\seanm\Downloads')/'fonkay-color-theme.json',
+        prjpth=Path(r'C:\Users\seanm\Docs\_Lib\Fonk\rasmatazz'),
+        basetheme = "Monokai" ):
+        '''Puts a themejson created at https://themes.vscode.one/ into your
+        .vscode/settings.json\n
+        WARNING overwrites settings TODO'''
+        with open(themejson, 'r') as fh:
+            jj=json.load(fh)
+        
+        j = copy(jj)
+        j.pop('colors')
+        
+        settingz = {
+            "workbench.colorCustomizations": {
+                f'[{basetheme}]': jj['colors']
+            },
+            **j
+            ,
+            "workbench.colorTheme": basetheme
+        }
+        
+        settingsjson = prjpth/'.vscode'/'settings.json'
+        (settingsjson.parent).mkdir(parents=True,exist_ok=True)
+        
+        fileBackup(settingsjson)
+        if settingsjson.exists():
+            settingsjson.unlink()
+        with open(settingsjson, 'w') as outfile:
+            json.dump(settingz, outfile,indent=4)
+        
+        return settingsjson
