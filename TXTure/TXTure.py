@@ -1,10 +1,11 @@
 from funkshuns import *
+#TODO wrap all with a dec that takes either lines or Path and returns the same to allow for either method
 
 def read(txtfile):
     '''speed read the whole geo (returns list of lines without \\n 's (newline chars))\n
     txtfile: Path obj or TODO str test this implementation\n'''
     # if isinstance(txtfile,PurePath):
-    demlines = txtfile.read_text().split('\n')
+    demlines = txtfile.read_text(errors='ignore').split('\n')
     # else:
     #     with open(txtfile, 'r+') as fh:
     #         demlines = fh.readlines() #speed read the whole geo (to list)
@@ -21,6 +22,8 @@ def findKey(lines,key,how = 'startswith',startFrom = 0,retrn='linenumber'):
     if an int is entered for key, it will just find that line number offset from startFrom\n
     if how= "regex", keys should be as strs to re.compile r'Bla bla (\s|-|\.)?'    \n
     how= 'in' if key is in line\n
+    how='equals', if key IS the line exactly, 
+     useful if searching ex 'Subbasin: key1' which could find 'Subbasin: key12' if 12 comes first\n
     how = '!!' or '!!something' will add a not before the expression (line doesn't start with key)\n
     returns None if key not found'''
     #--------init
@@ -42,6 +45,8 @@ def findKey(lines,key,how = 'startswith',startFrom = 0,retrn='linenumber'):
         lookin = r're.compile(key[k]).search(line) != None'
     elif how == 'in':
         lookin = r'key[k] in line'
+    elif how=='equals':
+        lookin= r'key[k]==line'
     if nott:
         lookin = r'not ' + lookin
 
@@ -62,6 +67,33 @@ def findKey(lines,key,how = 'startswith',startFrom = 0,retrn='linenumber'):
     #     return (Lnum,lines[Lnum])
     # else:
     #     return lines[Lnum]
+def findKeyR(lines,key,how = 'startswith',startFrom = 0,retrn='linenumber'):
+    '''findkey but search right to left rather than left to right'''
+    rpos = findKey(lines[::-1],key,how=how,startFrom=startFrom,retrn=retrn)
+    pos = len(lines)-rpos-1 #index at 0, subtract 1
+    return pos
+
+def getBlock(lines,startkey,endkey='same_as_start',**findKeyKwargs):
+    '''gets block of lines \n
+    returns (from,to) indices such that lines[from:to] selects the block
+    \nie to is +1 of the endkey line\n
+    findKeyR endkey - finds the LAST occurence of endkey'''
+    if endkey=='same_as_start':
+        endkey=startkey
+    i,o = findKey(lines,startkey,**findKeyKwargs),findKeyR(lines,endkey,**findKeyKwargs)+1
+    return i,o
+def replaceBlock(linez,replaceWith,startkey,endkey='same_as_start',
+    fromOffset=0,toOffset=0,**findKeyKwargs):
+    '''
+    gets block of lines, then replaces it with replaceWith lines\n
+    (from,to) indices such that lines[from+fromOffset:to+toOffset] selects the block
+    \nie to is +1 of the endkey line
+    '''
+    lines = linez[::]
+    i,o = getBlock(lines,startkey,endkey,**findKeyKwargs)
+    lines[i+fromOffset:o+toOffset] = asList(replaceWith)
+    return lines
+
 def getKeys(txtfile,keys,startFrom = 0,trim=2,how='startswith'):
     '''keys list of keys\n
     can be list of strs, list of (lists of strs), or 1 str \n
@@ -229,6 +261,24 @@ def setKeys(txtfile,keyz,startFrom = 0,how='startswith',backup=False):
         lines[Lnum:Lnum] = [addLine]
 
     write(txtfile,lines,True,backup)
+def setOrInsertKey(txtfile,keydict,afterKey,linesAfter=1,**setKeysKwargs):
+    '''setKey (single), expect: create key after afterKey\n
+    keydict: {'key1':'replacewith1'}, only accepts strs for key and replacewith\n
+    change linesAfter to insert before for example (0), after the line after afterKey (2) etc\n
+    '''
+    key,val = list(keydict.items())[0]
+    try:
+        setKeys(txtfile,keydict,**setKeysKwargs)
+    except: # key doesnt exist
+        assert isinstance(key,str) and isinstance(val,str), f'Both {key} and {val} should be strs'
+
+        lines = read(txtfile)
+        b4 = findKey(lines,afterKey)+linesAfter
+        assert b4, f'ERROR: {afterKey} not found in {txtfile}'
+        lines[b4:b4] = [key+val]
+        write(txtfile,lines)
+    assert getKeys(txtfile,key,trim=1)[0]==val
+
 def setSeq(txtfile,newSeq,key,how = 'startswith',key2=None,how2=None,startFrom = 0,backup=False,newLine=True):
     '''just one seq'''
     if backup:
@@ -243,6 +293,7 @@ def setSeq(txtfile,newSeq,key,how = 'startswith',key2=None,how2=None,startFrom =
     del lines[bounds[0]:bounds[1]]
     insertLines(lines,newseqfull,bounds[0],newLine=False)
     write(txtfile,lines,False,backup)
+# def getBlock()
 def equal(txtfiles):
     '''for testing, 
     ex:\n
@@ -269,7 +320,7 @@ from copy import copy
 from os import mkdir
 class meta():
     '''metaprogramming utils'''
-    def functionize(file=Path(r'C:\Users\seanm\Desktop\temp')/"Untitled-1.py" ,iniCells=3,argCell=2,src='vscode'):
+    def functionize(file=Path(r'C:\Users\seanm\Documents\temp')/"Untitled-1.py" ,iniCells=3,argCell=2,src='vscode'):
         '''Functionizes a .ipynb Exported as executable script (.py)\n
         iniCells: how many code cells before the function begins\n
         argCell: which cell to pull args from'''
@@ -338,12 +389,18 @@ class meta():
         file.write_text('\n'.join(res))
         print(f'{file} has been functionized')
 
-    def themeMe(themejson=Path(r'C:\Users\seanm\Downloads')/'fonkay-color-theme.json',
-        prjpth=Path(r'C:\Users\seanm\Docs\_Lib\Fonk\rasmatazz'),
+    def themeMe(themeStem='fonkay',themeDir=Path(r'C:\Users\seanm\Downloads'),
+        prjpth='cwd',
         basetheme = "Monokai" ):
-        '''Puts a themejson created at https://themes.vscode.one/ into your
+        '''
+        themejson = themeDir/f'{themeStem}-color-theme.json'\n
+        Puts a themejson created at https://themes.vscode.one/ into your
         .vscode/settings.json\n
         WARNING overwrites settings TODO'''
+        if prjpth=='cwd':
+            prjpth=Path.cwd()
+        themejson = themeDir/f'{themeStem}-color-theme.json'
+
         with open(themejson, 'r') as fh:
             jj=json.load(fh)
         
@@ -369,3 +426,4 @@ class meta():
             json.dump(settingz, outfile,indent=4)
         
         return settingsjson
+    ipyToHTML = htmler.ipyToHTML #alias

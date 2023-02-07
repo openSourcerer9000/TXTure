@@ -1,0 +1,225 @@
+Basin: 2018_Existing_Conditions
+     Last Modified Date: 5 April 2022
+     Last Modified Time: 22:13:54
+     Version: 4.9
+     Filepath Separator: \
+     Unit System: English
+     Missing Flow To Zero: No
+     Enable Flow Ratio: No
+     Compute Local Flow At Junctions: No
+     Unregulated Output Required: No
+
+     Enable Sediment Routing: No
+
+     Enable Quality Routing: No
+End:
+
+Subbasin: S_Cr_43
+     Last Modified Date: 7 April 2022
+     Last Modified Time: 19:43:25
+     Latitude Degrees:  31.114351893473255
+     Longitude Degrees: -93.14012231039617
+     Canvas X: 2715339.3950766167
+     Canvas Y: 955258.5356569153
+     Area: 5.8491
+
+     Discretization: Structured
+     File: 2018_Existing_Conditions.sqlite
+     Projection: 5070
+     Cell Size: 1000.0
+
+     Canopy: None
+     Allow Simultaneous Precip Et: No
+     Plant Uptake Method: None
+
+     Surface: None
+
+     LossRate: Gridded Deficit Constant
+     Initial Deficit Grid: Init Deficit
+     Maximum Deficit Grid: Max Deficit
+     Constant Rate Grid: Constant Rate
+     Impervious Area Grid: Percent Impervious
+     Initial Deficit Scale: 1.0
+     Maximum Deficit Scale: 1.0
+     Percolation Rate Scale: 1.0
+     Impervious Area Scale: 1.0
+
+     Transform: Modified Clark
+     Time of Concentration: 19.3
+     Storage Coefficient: 0.08
+
+     Baseflow: None
+End:
+
+Subbasin: S_Cr_p4
+     Last Modified Date: 7 April 2022
+     Last Modified Time: 19:43:25
+     Latitude Degrees:  31.09969902729545
+     Longitude Degrees: -93.16522811644334
+     Canvas X: 2707395.1830286747
+     Canvas Y: 950048.2536743156
+     Area: 4.6539
+
+     Discretization: Structured
+     File: 2018_Existing_Conditions.sqlite
+     Projection: 5070
+     Cell Size: 1000.0
+
+     Canopy: None
+     Allow Simultaneous Precip Et: No
+     Plant Uptake Method: None
+
+     Surface: None
+
+     LossRate: Gridded Deficit Constant
+     Initial Deficit Grid: Init Deficit
+     Maximum Deficit Grid: Max Deficit
+     Constant Rate Grid: Constant Rate
+     Impervious Area Grid: Percent Impervious
+     Initial Deficit Scale: 1.0
+     Maximum Deficit Scale: 1.0
+     Percolation Rate Scale: 1.0
+     Impervious Area Scale: 1.0
+
+     Transform: Modified Clark
+     Time of Concentration: 11.28
+     Storage Coefficient: 0.08
+
+     Baseflow: None
+End:
+
+Subbasin: S_Cr_1
+     Last Modified Date: 7 April 2022
+     Last Modified Time: 19:43:25
+     Latitude Degrees:  30.522123415140342
+     Longitude Degrees: -92.92095749105587
+     Canvas X: 2780946.509882441
+     Canvas Y: 738841.698332098
+     Area: 0.48193
+
+     Discretization: Structured
+     File: 2018_Existing_Conditions.sqlite
+     Projection: 5070
+     Cell Size: 1000.0
+
+     Canopy: None
+     Allow Simultaneous Precip Et: No
+     Plant Uptake Method: None
+
+     Surface: None
+
+     LossRate: Gridded Deficit Constant
+     Initial Deficit Grid: Init Deficit
+     Maximum Deficit Grid: Max Deficit
+     Constant Rate Grid: Constant Rate
+     Impervious Area Grid: Percent Impervious
+     Initial Deficit Scale: 1.0
+     Maximum Deficit Scale: 1.0
+     Percolation Rate Scale: 1.0
+     Impervious Area Scale: 1.0
+
+     Transform: Modified Clark
+     Time of Concentration: 10.31
+     Storage Coefficient: 0.41
+
+     Baseflow: None
+End:
+
+Basin Layer Properties:
+     Element Layer:
+          Name: Icons
+          Layer shown: Yes
+     End Layer:
+     Element Layer:
+          Name: Reaches
+          Layer shown: No
+     End Layer:
+     2D Connection Layer:
+          Layer shown: No
+     End Layer:
+     Element Layer:
+          Name: Subbasins
+          Layer shown: Yes
+     End Layer:
+     Discretization Layer:
+          Layer shown: No
+     End Layer:
+     Breakpoint Layer:
+          Layer shown: No
+     End Layer:
+     Base Layer:
+          Name: Identified Streams
+          Layer shown: No
+          Properties Filename: maps\streams4523110292022.xml
+     End Layer:
+     Base Layer:
+          Name: Flow Accumulation
+          Layer shown: No
+          Properties Filename: maps\flowaccum2417020292022.xml
+     End Layer:
+     Base Layer:
+          Name: Flow Direction
+          Layer shown: No
+          Properties Filename: maps\flowdir2417020292022.xml
+     End Layer:
+     Base Layer:
+          Name: Sink Locations
+          Layer shown: No
+          Properties Filename: maps\sinklocs2633140282022.xml
+     End Layer:
+     Base Layer:
+          Name: Sink Fill
+          Layer shown: No
+          Properties Filename: maps\sinkfill2633140282022.xml
+     End Layer:
+     Base Layer:
+          Name: Reconditioned Terrain
+          Layer shown: No
+          Properties Filename: maps\reconditioned0743130282022.xml
+     End Layer:
+     Base Layer:
+          Name: Terrain
+          Layer shown: No
+          Properties Filename: maps\elevation0434130282022.xml
+     End Layer:
+End:
+
+Basin Spatial Properties:
+     Coordinate System: PROJCS["NAD_1983_2011_StatePlane_Louisiana_South_FIPS_1702_Ft_US",GEOGCS["NAD83(2011)",DATUM["NAD83_National_Spatial_Reference_System_2011",SPHEROID["GRS 1980",6378137,298.257222101004,AUTHORITY["EPSG","7019"]],AUTHORITY["EPSG","1116"]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","6318"]],PROJECTION["Lambert_Conformal_Conic_2SP"],PARAMETER["latitude_of_origin",28.5],PARAMETER["central_meridian",-91.3333333333333],PARAMETER["standard_parallel_1",30.7],PARAMETER["standard_parallel_2",29.3],PARAMETER["false_easting",3280833.3333],PARAMETER["false_northing",0],UNIT["US survey foot",0.304800609601219,AUTHORITY["EPSG","9003"]],AXIS["Easting",EAST],AXIS["Northing",NORTH],AUTHORITY["EPSG","6479"]]
+     Terrain: WH_10FT
+     Threshold: 1.2
+     Break Point: WH_Outlet
+          X Coordinate: 2782658.3950391803
+          Y Coordinate: 731828.2973113826
+     End Break Point:
+     reach_prefix: R_
+     junction_insert: true
+     junction_prefix: J_
+     subbasin_prefix: A_
+End:
+
+Basin Schematic Properties:
+     Last View N: 959474.2670654565
+     Last View S: 731824.0452837871
+     Last View W: 2656878.802496285
+     Last View E: 2823444.95844311
+     Maximum View N: 959474.2670654565
+     Maximum View S: 731824.0452837871
+     Maximum View W: 2656878.802496285
+     Maximum View E: 2823444.95844311
+     Extent Method: Elements
+     Buffer: 0
+     Draw Icons: Yes
+     Draw Icon Labels: Name
+     Draw Map Objects: No
+     Draw Gridlines: No
+     Draw Flow Direction: No
+     Draw HillShade Layer: Yes
+     Draw Elevation Layer: Yes
+     Elevation Layer Color Palette: Default
+     Ignore Elevation Color Ramp Scale: No
+     Use Interpolated Color Ramp for Elevation Layer: Yes
+     Color Ramp Opacity Level for Elevation Layer: 33.0
+     Fix Element Locations: No
+     Fix Hydrologic Order: No
+End:
