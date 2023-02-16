@@ -211,6 +211,12 @@ def test_setSeq_recip():
     txt.setSeq(prj,seq,'Plan File=')
     lines = txt.read(prj)
     assert txt.getSeq(lines,'Plan File=')==seq
+
+    assert '''Unsteady File=u05
+Plan File=p01
+Plan File=p02
+Plan File=p03
+Background Map Layer=DAs''' in prj.read_text()
 def test_Equal():
     msg=x.fresh(x.msg)
     assert txt.equal([msg,x.msg])

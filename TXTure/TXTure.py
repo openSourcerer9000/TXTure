@@ -279,20 +279,18 @@ def setOrInsertKey(txtfile,keydict,afterKey,linesAfter=1,**setKeysKwargs):
         write(txtfile,lines)
     assert getKeys(txtfile,key,trim=1)[0]==val
 
-def setSeq(txtfile,newSeq,key,how = 'startswith',key2=None,how2=None,startFrom = 0,backup=False,newLine=True):
+def setSeq(txtfile,newSeq,key,how = 'startswith',key2=None,how2=None,startFrom = 0,backup=False,suff=''):
     '''just one seq'''
     if backup:
         fileBackup(txtfile)
-    if newLine:
-        suff = '\n' 
-    else: 
-        suff = ''
     newseqfull = [f'{key}{s}{suff}' for s in newSeq]
     lines = read(txtfile)
     bounds = getSeq(lines,key,how,key2,how2,startFrom,retrn='bounds')
     del lines[bounds[0]:bounds[1]]
-    insertLines(lines,newseqfull,bounds[0],newLine=False)
-    write(txtfile,lines,False,backup)
+    insertLines(lines,newseqfull,bounds[0]-1
+                ,newLine=False
+                )
+    write(txtfile,lines,backup=backup)
 # def getBlock()
 def equal(txtfiles):
     '''for testing, 
