@@ -239,26 +239,40 @@ def write(txtfile,lines,addNewLines=True,backup=False):#,writefrom=0):
     #     fh.truncate(writefrom)
     #     fh.seek(writefrom)
     #     fh.writelines(lines)
-def setKeys(txtfile,keyz,startFrom = 0,how='startswith',backup=False):
-    '''keyz: {key1:'replacewith1',key2:...}\n
+def setKeys(txtfile,keyz,startFrom = 0,how='startswith',backup=False,lethalFail=True):
+    '''keyz = [\n
+        (key1,'replacewith1'),\n
+        (['key2a','key2b']:'replacewith2'),\n
+        ]\n
     the dict values can also be functions (or a mix of the two, {key1:'str',key2:myFunc}), \n
     in which case the OG key will be replaced with the output of func(OG key)\n
     suff is the suffix to append the keys with, this will likely be a newline character (default)\n
     USE suff='' not suff=None\n
     the entire line will be replaced with keyi+replacewithi+suff\n'''
     lines = read(txtfile)
-    for key in list(keyz.keys()):
-        if hasattr(keyz[key], '__call__'): #is func
-            OGkey=getKeys(txtfile,[key],how=how,trim=1)[0]
-            addLine = f'{key}{keyz[key](OGkey)}'
-        else: #key is a str or list, not a func
-            addLine = f'{asList(key)[-1]}{keyz[key]}'
-        # try:
-        lines,Lnum=removeLines(lines,key,key2=1,how1=how)
-        # except:
-        #     print(f'WARNING: {txtfile} not written- setKeys operation failed')
-        #     return None
-        lines[Lnum:Lnum] = [addLine]
+    if isinstance(keyz,dict):
+        keylist = list(keyz.items()) # list of tuples
+    else:
+        keylist = keyz
+
+    for key,val in keylist:
+        try:
+            if hasattr(val, '__call__'): #is func
+                OGkey=getKeys(txtfile,[key],how=how,trim=1)[0]
+                addLine = f'{key}{val(OGkey)}'
+            else: #key is a str or list, not a func
+                addLine = f'{asList(key)[-1]}{val}'
+            # try:
+            lines,Lnum=removeLines(lines,key,key2=1,how1=how)
+            # except:
+            #     print(f'WARNING: {txtfile} not written- setKeys operation failed')
+            #     return None
+            lines[Lnum:Lnum] = [addLine]
+        except Exception as e:
+            if lethalFail:
+                raise e
+            else:
+                print(f'WARNING: {e}')
 
     write(txtfile,lines,True,backup)
 def setOrInsertKey(txtfile,keydict,afterKey,linesAfter=1,**setKeysKwargs):
