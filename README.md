@@ -4,6 +4,9 @@ TXTure
 
  # Surgically edit machine-readable ASCII files
 
+![image](https://github.com/user-attachments/assets/619ef99f-bac7-4063-94f9-5efa66d3bac4)
+
+
 TXTure Provides intuitive ways  to work with data in text files
 
 Below are the basic primitives used.  
