@@ -1,10 +1,10 @@
-======
-TXTure
+
+ # TXTure
 ======
 
- # Surgically edit machine-readable ASCII files
+ ## Surgically edit machine-readable ASCII files
 
-![image](https://github.com/user-attachments/assets/619ef99f-bac7-4063-94f9-5efa66d3bac4)
+ ![image](https://github.com/user-attachments/assets/1d95a193-7db6-4359-8511-19b29e3f5c17)
 
 
 TXTure Provides intuitive ways  to work with data in text files
