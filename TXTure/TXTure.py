@@ -1,6 +1,17 @@
 from funkshuns import *
 #TODO wrap all with a dec that takes either lines or Path and returns the same to allow for either method
 
+from copy import copy
+
+class Config:
+    def __init__(self):
+        self.suppressPrints = False
+opts = Config()
+prunt = copy(print)
+def print(*msgs):
+    if not opts.suppressPrints:
+        prunt(*msgs)
+
 def read(txtfile):
     '''speed read the whole geo (returns list of lines without \\n 's (newline chars))\n
     txtfile: Path obj or TODO str test this implementation\n'''
@@ -77,7 +88,7 @@ def getBlock(lines,startkey,endkey='same_as_start',**findKeyKwargs):
     '''gets block of lines \n
     returns (from,to) indices such that lines[from:to] selects the block
     \nie to is +1 of the endkey line\n
-    findKeyR endkey - finds the LAST occurence of endkey'''
+    findKeyR endkey - this finds the LAST occurence of endkey'''
     if endkey=='same_as_start':
         endkey=startkey
     i,o = findKey(lines,startkey,**findKeyKwargs),findKeyR(lines,endkey,**findKeyKwargs)+1
@@ -115,6 +126,14 @@ def getKeys(txtfile,keys,startFrom = 0,trim=2,how='startswith'):
     if trim==2:
         res = [st.replace('\n','').strip() if st else None for st in res]
     return res
+def getKey(txtfile,key,**kwargz):
+    '''
+    WARNING: right now a list of strs acts as multiple single-string keys, passing 1 list key should be [key] where key=['str','str2',...] TODO desired behavior?\n
+    trim: {0:returns full line including key, 1:not including key,\n2:
+    not including key + trim escape n and white space before and after each result,\n
+    '''
+    return getKeys(txtfile,[key],**kwargz)[0]
+
 def getKeysAll(txtfile,keys,startfrom=0,trim=2):
     '''TODO getKeys will only get the first instance of each key, this returns all'''
     assert False
@@ -239,26 +258,40 @@ def write(txtfile,lines,addNewLines=True,backup=False):#,writefrom=0):
     #     fh.truncate(writefrom)
     #     fh.seek(writefrom)
     #     fh.writelines(lines)
-def setKeys(txtfile,keyz,startFrom = 0,how='startswith',backup=False):
-    '''keyz: {key1:'replacewith1',key2:...}\n
+def setKeys(txtfile,keyz,startFrom = 0,how='startswith',backup=False,lethalFail=True):
+    '''keyz = [\n
+        (key1,'replacewith1'),\n
+        (['key2a','key2b']:'replacewith2'),\n
+        ]\n
     the dict values can also be functions (or a mix of the two, {key1:'str',key2:myFunc}), \n
     in which case the OG key will be replaced with the output of func(OG key)\n
     suff is the suffix to append the keys with, this will likely be a newline character (default)\n
     USE suff='' not suff=None\n
     the entire line will be replaced with keyi+replacewithi+suff\n'''
     lines = read(txtfile)
-    for key in list(keyz.keys()):
-        if hasattr(keyz[key], '__call__'): #is func
-            OGkey=getKeys(txtfile,[key],how=how,trim=1)[0]
-            addLine = f'{key}{keyz[key](OGkey)}'
-        else: #key is a str or list, not a func
-            addLine = f'{asList(key)[-1]}{keyz[key]}'
-        # try:
-        lines,Lnum=removeLines(lines,key,key2=1,how1=how)
-        # except:
-        #     print(f'WARNING: {txtfile} not written- setKeys operation failed')
-        #     return None
-        lines[Lnum:Lnum] = [addLine]
+    if isinstance(keyz,dict):
+        keylist = list(keyz.items()) # list of tuples
+    else:
+        keylist = keyz
+
+    for key,val in keylist:
+        try:
+            if hasattr(val, '__call__'): #is func
+                OGkey=getKeys(txtfile,[key],how=how,trim=1)[0]
+                addLine = f'{key}{val(OGkey)}'
+            else: #key is a str or list, not a func
+                addLine = f'{asList(key)[-1]}{val}'
+            # try:
+            lines,Lnum=removeLines(lines,key,key2=1,how1=how)
+            # except:
+            #     print(f'WARNING: {txtfile} not written- setKeys operation failed')
+            #     return None
+            lines[Lnum:Lnum] = [addLine]
+        except Exception as e:
+            if lethalFail:
+                raise e
+            else:
+                print(f'WARNING: {e}')
 
     write(txtfile,lines,True,backup)
 def setOrInsertKey(txtfile,keydict,afterKey,linesAfter=1,**setKeysKwargs):
@@ -291,7 +324,6 @@ def setSeq(txtfile,newSeq,key,how = 'startswith',key2=None,how2=None,startFrom =
                 ,newLine=False
                 )
     write(txtfile,lines,backup=backup)
-# def getBlock()
 def equal(txtfiles):
     '''for testing, 
     ex:\n
@@ -310,7 +342,7 @@ def replaceAll(txtfile,dictFindReplace,backup=True,return_lines=False):
     lines = [replaceMulti(dictFindReplace,line) for line in lines]
     # for fnd,rep in dictFindReplace.items():
     #     lines = [line.replace(fnd,rep) for line in lines]
-    write(txtfile,lines,False,backup)
+    write(txtfile,lines,backup=backup)
     if return_lines:
         return lines
 
@@ -386,6 +418,26 @@ class meta():
         
         file.write_text('\n'.join(res))
         print(f'{file} has been functionized')
+    def rmdToR(rmd):
+        '''converts rmd notebook to r script, with the same name, in the same dir'''
+        rscript = rmd.parent/f'{rmd.stem}.R'
+        if rscript.exists():
+            fileBackup(rscript)
+        r = pd.Series(rmd.read_text().split('\n'))
+        r
+        starts = r[r=='```{r}'].index + 1
+        r[starts]
+        stops = r[r=='```'].index
+        stops
+        tups = list(zip(starts,stops))
+        tups
+        slices = [slice(start,stop) for start,stop in tups]
+        slices
+        script = [ r[slce].to_list() for slce in slices ]
+        script
+        script = flattenList(script)
+        script
+        txt.write(rscript,script)
 
     def themeMe(themeStem='fonkay',themeDir=Path(r'C:\Users\seanm\Downloads'),
         prjpth='cwd',
