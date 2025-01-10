@@ -54,7 +54,14 @@ def findKey(lines, key, how='startswith', startFrom=0, retrn='linenumber'):
     Search for a keyword(s) in a list of lines. 
      
     :param lines: List of strings from a text file. 
-    :param key: A string or list of strings to search for. 
+    :param key: A string or list of strings to search for.  
+        If a list, it searches through each key in sequence, 
+        where the final line number corresponds to the 
+        last key which must come after each preceding key in sequence.   
+        ie for   
+        key=['key1','key2']  
+        lines=['key2 line','key1 line','key2 line again']  
+        it will find key1, then key2, and return the line number of the first key2 which appears AFTER key1 (line # 2).
     :param how: Method of comparison ('startswith', 'in', 'equals', 'regex', or '!!'). 
     :param startFrom: Index to start searching from in `lines`. 
     :param retrn: Specifies the return format ('linenumber', 'line', or 'both'). 
@@ -126,6 +133,9 @@ def findKeyR(lines, key, how='startswith', startFrom=0, retrn='linenumber'):
      
     :param lines: List of strings containing text lines. 
     :param key: String or list of strings to search for within the lines. 
+        If a list, it searches through each key in sequence (from right to left), 
+        where the final line number corresponds to the 
+        last key which must come after each preceding key in sequence.   
     :param how: Method of matching ('startswith' or other) to apply to the key. 
     :param startFrom: Index to begin the search from (default is 0). 
     :param retrn: Specifies the return format ('linenumber', 'linecontent', or other). 
